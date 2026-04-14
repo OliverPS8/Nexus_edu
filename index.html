@@ -665,3 +665,21 @@ const metodologiasPor = {
 
 const recursosBase = ['Lousa e giz / quadro branco', 'Material impresso (fichas, textos)', 'Livro didático'];
 const recursosExtras = ['Projetor e slides', 'Vídeo introdutório (YouTube)', 'Celular para pesquisa orientada', 'Mapa conceitual colaborativo', 'Cart
+                        function gerarPlano() {
+  const disciplina = document.querySelector('input[placeholder="Portugues"]').value;
+  const serie = document.querySelector('input[placeholder="6 ano"]').value;
+  const tema = document.querySelector('input[placeholder="Cores e numeros"]').value;
+  const duracao = document.querySelector('select').value;
+
+  const output = document.getElementById("plan-output");
+
+  output.innerHTML = `
+    <h2>Plano de Aula</h2>
+    <p><strong>Disciplina:</strong> ${disciplina}</p>
+    <p><strong>Série:</strong> ${serie}</p>
+    <p><strong>Tema:</strong> ${tema}</p>
+    <p><strong>Duração:</strong> ${duracao}</p>
+    <hr>
+    <p>Plano gerado com sucesso ✅</p>
+  `;
+}
