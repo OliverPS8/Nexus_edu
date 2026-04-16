@@ -3,126 +3,299 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexus_edu - IA para Professores</title>
+  <title>Nexus Edu - Sistema Educacional com IA</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             nexus: {
-              bg: '#0A0F1C',
-              surface: '#111827',
-              primary: '#00D4FF',
-              accent: '#FF7A00',
-              muted: '#94A3B8'
+              cyan: '#00D4FF',
+              orange: '#FF7A00',
+              dark: '#0A0F1C',
+              card: '#111827',
+              muted: '#64748B'
             }
           },
-          boxShadow: {
-            'neon': '0 0 8px rgba(0, 212, 255, 0.35)',
-            'glow': '0 0 10px rgba(255, 122, 0, 0.4)'
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'gradient': 'gradient 8s linear infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            gradient: {
+              '0%, 100%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
           }
         }
       }
     }
   </script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.css">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
-    .input-nexus { @apply w-full bg-nexus-bg border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-nexus-muted focus:outline-none focus:border-nexus-primary transition; }
-    .btn-primary { @apply bg-nexus-primary text-nexus-bg font-semibold px-6 py-3 rounded-lg shadow-neon hover:shadow-[0_0_14px_rgba(0,212,255,0.6)] transition disabled:opacity-50 flex items-center justify-center gap-2; }
-    .card { @apply bg-nexus-surface border border-white/10 rounded-xl p-5 hover:border-nexus-primary/30 transition; }
+    body {
+      background: #0A0F1C;
+      font-family: 'Inter', sans-serif;
+    }
+    .gradient-bg {
+      background: linear-gradient(-45deg, #0A0F1C, #111827, #1E293B, #0F172A);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+    }
+    .glass-card {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .neon-border {
+      position: relative;
+    }
+    .neon-border::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(45deg, #00D4FF, #FF7A00, #00D4FF);
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .neon-border:hover::before {
+      opacity: 0.6;
+      filter: blur(8px);
+    }
+    .input-glass {
+      background: rgba(10, 15, 28, 0.6);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      transition: all 0.3s;
+    }
+    .input-glass:focus {
+      border-color: #00D4FF;
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+      outline: none;
+    }
+    .btn-gradient {
+      background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-gradient::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    .btn-gradient:hover::after {
+      left: 100%;
+    }
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+    }
+    .btn-orange {
+      background: linear-gradient(135deg, #FF7A00 0%, #CC6100 100%);
+    }
+    .btn-orange:hover {
+      box-shadow: 0 10px 25px rgba(255, 122, 0, 0.4);
+    }
+    .hexagon {
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #00D4FF 0%, #FF7A00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(255, 122, 0, 0.1) 100%);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+    }
   </style>
 </head>
-<body class="min-h-screen bg-nexus-bg text-white">
-  <!-- Header Mobile -->
-  <header class="sticky top-0 z-10 bg-nexus-bg/95 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-nexus-primary to-nexus-accent flex items-center justify-center font-bold shadow-neon">N</div>
-      <span class="font-semibold">Nexus_edu</span>
+<body class="gradient-bg min-h-screen text-white">
+  
+  <!-- Header -->
+  <header class="sticky top-0 z-50 glass-card border-b border-white/10">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- Logo Hexagonal -->
+        <div class="w-10 h-10 bg-gradient-to-br from-nexus-cyan to-nexus-orange rounded-lg flex items-center justify-center font-bold text-nexus-dark shadow-lg">
+          N
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-wide">NEXUS<span class="text-nexus-orange">_EDU</span></h1>
+          <p class="text-xs text-nexus-muted">SISTEMA EDUCACIONAL COM IA</p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-4 text-sm text-nexus-muted">
+        <span class="hover:text-nexus-cyan cursor-pointer transition">Dashboard</span>
+        <span class="hover:text-nexus-cyan cursor-pointer transition">Alunos</span>
+        <span class="hover:text-nexus-cyan cursor-pointer transition">Turmas</span>
+      </div>
     </div>
-    <button class="text-nexus-primary text-sm">IA</button>
   </header>
 
-  <!-- Conteúdo Principal -->
-  <main class="p-4 space-y-6">
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8 space-y-8">
     
-    <!-- Boas-vindas -->
-    <div class="text-center py-4">
-      <h1 class="text-2xl font-bold bg-gradient-to-r from-nexus-primary to-nexus-accent bg-clip-text text-transparent">
-        Bem-vindo ao Nexus_edu
-      </h1>
-      <p class="text-nexus-muted text-sm mt-1">IA para apoiar professores brasileiros</p>
-    </div>
-
-    <!-- Cards -->
-    <div class="grid grid-cols-2 gap-3">
-      <div class="card text-center">
-        <div class="text-2xl font-bold text-nexus-primary">24</div>
-        <div class="text-xs text-nexus-muted">Alunos</div>
-      </div>
-      <div class="card text-center">
-        <div class="text-2xl font-bold text-nexus-accent">3</div>
-        <div class="text-xs text-nexus-muted">Turmas</div>
-      </div>
-    </div>
-
-    <!-- Formulário IA -->
-    <div class="card">
-      <h2 class="font-semibold mb-4 flex items-center gap-2">
-        <i data-lucide="sparkles" class="text-nexus-accent"></i>
-        Gerar Plano com IA
+    <!-- Hero Section -->
+    <div class="text-center space-y-4 animate-float">
+      <h2 class="text-4xl md:text-5xl font-bold">
+        Bem-vindo ao <span class="text-gradient">Nexus_edu</span>
       </h2>
-      
-      <form id="aiForm" class="space-y-3">
-        <input type="text" id="subject" placeholder="Disciplina (ex: Matemática)" class="input-nexus">
-        <input type="text" id="grade" placeholder="Série (ex: 7º Ano)" class="input-nexus">
-        <textarea id="theme" placeholder="Tema da aula" rows="3" class="input-nexus"></textarea>
-        
-        <button type="submit" id="generateBtn" class="btn-primary w-full">
-          <i data-lucide="sparkles" class="w-4 h-4"></i>
-          <span id="btnText">Gerar com IA</span>
+      <p class="text-nexus-muted text-lg max-w-2xl mx-auto">
+        Inteligência Artificial para apoiar professores brasileiros com planos de aula alinhados à BNCC
+      </p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="stat-card rounded-2xl p-6 text-center neon-border">
+        <div class="text-4xl font-bold text-nexus-cyan mb-1">24</div>
+        <div class="text-sm text-nexus-muted uppercase tracking-wide">Alunos</div>
+      </div>
+      <div class="stat-card rounded-2xl p-6 text-center neon-border">
+        <div class="text-4xl font-bold text-nexus-orange mb-1">3</div>
+        <div class="text-sm text-nexus-muted uppercase tracking-wide">Turmas</div>
+      </div>
+      <div class="stat-card rounded-2xl p-6 text-center neon-border">
+        <div class="text-4xl font-bold text-green-400 mb-1">12</div>
+        <div class="text-sm text-nexus-muted uppercase tracking-wide">Planos com IA</div>
+      </div>
+    </div>
+
+    <!-- IA Form Section -->
+    <div class="glass-card rounded-3xl p-6 md:p-8 neon-border max-w-3xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-nexus-cyan to-nexus-orange flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold">Gerar Plano de Aula com IA</h3>
+          <p class="text-sm text-nexus-muted">Preencha os campos abaixo</p>
+        </div>
+      </div>
+
+      <form id="aiForm" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-nexus-muted mb-2">DISCIPLINA</label>
+            <input type="text" id="subject" placeholder="Ex: Matemática, História..." 
+                   class="input-glass w-full rounded-xl px-4 py-3 text-white placeholder-nexus-muted">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-nexus-muted mb-2">SÉRIE / ANO</label>
+            <input type="text" id="grade" placeholder="Ex: 7º ano, 3ª série..." 
+                   class="input-glass w-full rounded-xl px-4 py-3 text-white placeholder-nexus-muted">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-nexus-muted mb-2">TEMA DA AULA</label>
+          <textarea id="theme" placeholder="Ex: Frações equivalentes, Revolução Industrial..." rows="3"
+                    class="input-glass w-full rounded-xl px-4 py-3 text-white placeholder-nexus-muted resize-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-nexus-muted mb-2">DURAÇÃO DA AULA</label>
+          <select id="duration" class="input-glass w-full rounded-xl px-4 py-3 text-white">
+            <option value="45">45 minutos (1 período)</option>
+            <option value="50">50 minutos (1 período)</option>
+            <option value="90">90 minutos (2 períodos)</option>
+            <option value="100">100 minutos (2 períodos)</option>
+          </select>
+        </div>
+
+        <button type="submit" id="generateBtn" 
+                class="btn-gradient w-full rounded-xl px-6 py-4 font-semibold text-nexus-dark mt-4 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+          <span id="btnText">Gerar Plano de Aula com IA</span>
         </button>
       </form>
 
-      <!-- Resultado -->
-      <div id="result" class="mt-4 hidden">
-        <div class="border border-nexus-primary/30 rounded-lg p-4 bg-nexus-bg/50">
-          <h3 id="planTitle" class="font-semibold text-nexus-primary mb-2"></h3>
-          <div id="planContent" class="text-sm space-y-2"></div>
+      <!-- Result Section -->
+      <div id="result" class="mt-8 hidden">
+        <div class="glass-card rounded-2xl p-6 border border-nexus-cyan/20">
+          <h4 id="planTitle" class="text-2xl font-bold text-gradient mb-4"></h4>
+          <div id="planContent" class="space-y-4 text-sm"></div>
+          <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-nexus-muted">
+            <span>✓ Alinhado à BNCC</span>
+            <span>Conforme LDB e MEC</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Rodapé -->
-    <footer class="text-center text-xs text-nexus-muted pt-4 border-t border-white/10">
-      Conforme BNCC, LDB, MEC • Leis 15.100/2025 e 14.180/2026
-    </footer>
+    <!-- Features -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+      <div class="glass-card rounded-xl p-4 text-center">
+        <div class="text-2xl mb-2">🎯</div>
+        <div class="font-semibold mb-1">Alinhado BNCC</div>
+        <div class="text-xs text-nexus-muted">Habilidades e competências</div>
+      </div>
+      <div class="glass-card rounded-xl p-4 text-center">
+        <div class="text-2xl mb-2">⚡</div>
+        <div class="font-semibold mb-1">Rápido</div>
+        <div class="text-xs text-nexus-muted">Planos em segundos</div>
+      </div>
+      <div class="glass-card rounded-xl p-4 text-center">
+        <div class="text-2xl mb-2">🔒</div>
+        <div class="font-semibold mb-1">Seguro</div>
+        <div class="text-xs text-nexus-muted">Dados protegidos</div>
+      </div>
+    </div>
+
   </main>
 
-  <!-- Scripts -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Footer -->
+  <footer class="border-t border-white/10 mt-12 py-6 text-center text-sm text-nexus-muted">
+    <p class="mb-1">Conforme BNCC, LDB, MEC • Leis 15.100/2025 e 14.180/2026</p>
+    <p class="text-xs">NEXUS_EDU — MVP v2.0 — Sistema Educacional com IA</p>
+  </footer>
+
+  <!-- Script -->
   <script>
-    lucide.createIcons();
-    
     // ⚠️ COLOQUE SUA CHAVE QWEN ABAIXO:
     const QWEN_API_KEY = "LTAI5t6yYebuRAwAT7ytZEqx
 MGU2C2EWTxEGbnxioHdy4N8ClcN5a7
-  ";
-    
+    ";
+
     document.getElementById('aiForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
       const btn = document.getElementById('generateBtn');
       const btnText = document.getElementById('btnText');
       const result = document.getElementById('result');
       
       btn.disabled = true;
-      btnText.textContent = "Gerando...";
+      btnText.textContent = "Gerando plano...";
       result.classList.add('hidden');
       
       const subject = document.getElementById('subject').value;
       const grade = document.getElementById('grade').value;
       const theme = document.getElementById('theme').value;
+      const duration = document.getElementById('duration').value;
       
       try {
         const response = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", {
@@ -134,36 +307,85 @@ MGU2C2EWTxEGbnxioHdy4N8ClcN5a7
           body: JSON.stringify({
             model: "qwen-plus",
             messages: [
-              { role: "system", content: "Responda APENAS em JSON: {\"title\":\"...\",\"steps\":[\"...\"],\"resources\":[\"...\"],\"assessment\":\"...\"}. Alinhe com BNCC." },
-              { role: "user", content: `Plano para: ${subject}, ${grade}, tema: ${theme}` }
+              {
+                role: "system",
+                content: "Você é um assistente pedagógico especializado em educação brasileira. Responda APENAS em JSON válido com esta estrutura exata: {\"title\": \"Título do Plano\", \"steps\": [\"Etapa 1 com tempo\", \"Etapa 2 com tempo\"], \"resources\": [\"Recurso 1\", \"Recurso 2\"], \"assessment\": \"Descrição da avaliação formativa\"}. Alinhe com BNCC e use linguagem clara para professores."
+              },
+              {
+                role: "user",
+                content: `Gere um plano de aula para: ${subject || 'Disciplina'}, ${grade || 'Série'}, tema: ${theme || 'Conteúdo geral'}, duração: ${duration} minutos`
+              }
             ],
             response_format: { type: "json_object" }
           })
         });
         
-        if (!response.ok) throw new Error("API error");
+        if (!response.ok) throw new Error("Erro na API");
+        
         const data = await response.json();
         const content = JSON.parse(data.choices[0].message.content);
         
+        // Display result
         document.getElementById('planTitle').textContent = content.title;
-        document.getElementById('planContent').innerHTML = 
-          `<div><strong>📋 Etapas:</strong><br>${content.steps.map(s=>`• ${s}`).join('<br>')}</div>
-           <div class="mt-2"><strong>📦 Recursos:</strong> ${content.resources.join(', ')}</div>
-           <div class="mt-2"><strong>✅ Avaliação:</strong> ${content.assessment}</div>`;
+        document.getElementById('planContent').innerHTML = `
+          <div>
+            <h5 class="font-semibold text-nexus-cyan mb-2">📋 ETAPAS DA AULA</h5>
+            <ol class="space-y-2">
+              ${content.steps.map((step, i) => `
+                <li class="flex items-start gap-2">
+                  <span class="bg-nexus-cyan/20 text-nexus-cyan w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0">${i + 1}</span>
+                  <span>${step}</span>
+                </li>
+              `).join('')}
+            </ol>
+          </div>
+          <div>
+            <h5 class="font-semibold text-nexus-orange mb-2">📦 RECURSOS NECESSÁRIOS</h5>
+            <div class="flex flex-wrap gap-2">
+              ${content.resources.map(res => `<span class="px-3 py-1 bg-nexus-orange/10 text-nexus-orange rounded-full text-xs">${res}</span>`).join('')}
+            </div>
+          </div>
+          <div>
+            <h5 class="font-semibold text-green-400 mb-2">✅ AVALIAÇÃO</h5>
+            <p class="text-nexus-muted">${content.assessment}</p>
+          </div>
+        `;
         result.classList.remove('hidden');
+        result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         
       } catch (err) {
         // Fallback mock
-        document.getElementById('planTitle').textContent = `Plano: ${subject || 'Aula'}`;
-        document.getElementById('planContent').innerHTML = 
-          `<div><strong>📋 Etapas:</strong><br>• Introdução (10 min)<br>• Desenvolvimento (25 min)<br>• Fechamento (10 min)</div>
-           <div class="mt-2"><strong>📦 Recursos:</strong> Quadro, ficha de atividade</div>
-           <div class="mt-2"><strong>✅ Avaliação:</strong> Observação contínua</div>
-           <div class="mt-2 text-xs text-nexus-muted">⚠️ Modo demonstração</div>`;
+        document.getElementById('planTitle').textContent = `Plano: ${subject || 'Aula Interdisciplinar'}`;
+        document.getElementById('planContent').innerHTML = `
+          <div>
+            <h5 class="font-semibold text-nexus-cyan mb-2">📋 ETAPAS DA AULA</h5>
+            <ol class="space-y-2">
+              <li class="flex items-start gap-2"><span class="bg-nexus-cyan/20 text-nexus-cyan w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>Ativação de conhecimentos prévios (10 min)</li>
+              <li class="flex items-start gap-2"><span class="bg-nexus-cyan/20 text-nexus-cyan w-5 h-5 rounded-full flex items-center justify-center text-xs">2</span>Explanação dialogada com exemplos (20 min)</li>
+              <li class="flex items-start gap-2"><span class="bg-nexus-cyan/20 text-nexus-cyan w-5 h-5 rounded-full flex items-center justify-center text-xs">3</span>Prática guiada em duplas (15 min)</li>
+              <li class="flex items-start gap-2"><span class="bg-nexus-cyan/20 text-nexus-cyan w-5 h-5 rounded-full flex items-center justify-center text-xs">4</span>Avaliação formativa (5 min)</li>
+            </ol>
+          </div>
+          <div>
+            <h5 class="font-semibold text-nexus-orange mb-2">📦 RECURSOS NECESSÁRIOS</h5>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-nexus-orange/10 text-nexus-orange rounded-full text-xs">Quadro</span>
+              <span class="px-3 py-1 bg-nexus-orange/10 text-nexus-orange rounded-full text-xs">Ficha de atividade</span>
+              <span class="px-3 py-1 bg-nexus-orange/10 text-nexus-orange rounded-full text-xs">Material visual</span>
+            </div>
+          </div>
+          <div>
+            <h5 class="font-semibold text-green-400 mb-2">✅ AVALIAÇÃO</h5>
+            <p class="text-nexus-muted">Observação contínua + autoavaliação dos alunos</p>
+          </div>
+          <div class="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-xs text-yellow-400">
+            ⚠️ Modo demonstração (IA offline)
+          </div>
+        `;
         result.classList.remove('hidden');
       } finally {
         btn.disabled = false;
-        btnText.textContent = "Gerar com IA";
+        btnText.textContent = "Gerar Plano de Aula com IA";
       }
     });
   </script>
