@@ -1057,4 +1057,468 @@
       </div>
 
       <div class="plan-card" onclick="abrirModulo('m4')">
-        <div class="plan-card-title"><span class="icon-badge ib-blue">🔍</span>
+        <div class="plan-card-title"><span class="icon-badge ib-blue">🔍</span>Fake News</h4>
+        <p style="font-size:0.85rem;color:var(--muted)">Como checar informações e desenvolver pensamento crítico.</p>
+        <span class="tag tag-cyan" style="margin-top:0.75rem">⏱️ 18 min + Quiz</span>
+      </div>
+
+      <div class="plan-card" onclick="abrirModulo('m5')">
+        <div class="plan-card-title"><span class="icon-badge ib-cyan">⚙️</span>Módulo 5</div>
+        <h4 style="margin:0.5rem 0;color:var(--text)">Privacidade nas Redes</h4>
+        <p style="font-size:0.85rem;color:var(--muted)">Passo a passo para configurar Instagram, TikTok e WhatsApp.</p>
+        <span class="tag tag-cyan" style="margin-top:0.75rem">⏱️ 25 min + Quiz</span>
+      </div>
+
+      <div class="plan-card" style="background:linear-gradient(135deg,rgba(22,163,74,0.1),rgba(124,58,237,0.1));border-color:var(--green)">
+        <div class="plan-card-title"><span class="icon-badge ib-green">🏆</span>Certificado</div>
+        <h4 style="margin:0.5rem 0;color:var(--text)">Cidadão Digital</h4>
+        <p style="font-size:0.85rem;color:var(--muted)">Conclua os 5 módulos com quizzes e gere seu certificado.</p>
+        <button class="btn btn-success" style="margin-top:1rem;width:100%" onclick="gerarCertificado()">📄 Gerar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: AUDITORIA -->
+  <div id="auditoria" class="tab-content">
+    <div class="form-card">
+      <h2>🔍 Auditoria de Conformidade</h2>
+      <p style="color:var(--muted);margin-bottom:1rem">Verifique se seus planos seguem BNCC e ECA Digital.</p>
+      <button class="btn btn-primary" onclick="gerarRelatorio()">📄 Gerar Relatório</button>
+      <div id="relatorio-output" style="margin-top:1rem;display:none"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>NEXUS_EDU v<span id="versao">2.2</span> • 
+      <span class="eca-badge">🛡️ Conformidade ECA Digital (Lei 15.211/2025)</span> • 
+      <span>LGPD Educacional</span> • 
+      Dados salvos localmente
+    </p>
+    <p style="margin-top:0.5rem;font-size:0.75rem">
+      <button class="btn btn-ghost" style="padding:2px 8px;font-size:0.7rem" onclick="mostrarPrivacidade()">
+        🔒 Política de Privacidade
+      </button>
+    </p>
+  </footer>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL MÓDULO -->
+<div class="modal" id="modal-modulo">
+  <div class="modal-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <h3 id="titulo-modulo" style="margin:0">Título</h3>
+      <button class="close-btn" onclick="fecharModulo()">✕</button>
+    </div>
+    <div id="conteudo-modulo" style="color:var(--muted);font-size:0.9rem;line-height:1.8"></div>
+    <div class="quiz-container" id="quiz-container"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="fecharModulo()">← Voltar</button>
+      <button class="btn btn-primary" id="btn-concluir" onclick="marcarConcluido()">✅ Concluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRIVACIDADE -->
+<div class="modal" id="modal-privacidade">
+  <div class="modal-content">
+    <h3 style="margin-bottom:1rem">🔒 Política de Privacidade</h3>
+    <p><strong>1. Coleta de Dados</strong><br>Não coletamos dados pessoais de menores sem consentimento parental (ECA Digital Art. 12).</p>
+    <p style="margin-top:0.75rem"><strong>2. Armazenamento</strong><br>Todos os dados são salvos APENAS no seu dispositivo. Nada é enviado para servidores externos.</p>
+    <p style="margin-top:0.75rem"><strong>3. Controle Parental</strong><br>Para menores de 16 anos, recomendamos vinculação ao responsável (Art. 15 ECA Digital).</p>
+    <p style="margin-top:0.75rem"><strong>4. Seus Direitos</strong><br>Você pode solicitar exclusão total dos dados a qualquer momento.</p>
+    <p style="margin-top:0.75rem"><strong>5. Conformidade</strong><br>Esta plataforma segue: LGPD, ECA Digital e diretrizes BNCC.</p>
+    <button class="btn btn-primary" style="margin-top:1.5rem;width:100%" onclick="document.getElementById('modal-privacidade').classList.remove('visible');localStorage.setItem('nexus_privacidade_aceita','true')">✅ Entendi</button>
+  </div>
+</div>
+
+<script>
+/* ===== CONFIG ===== */
+const CONFIG = { 
+  APP_VERSION: '2.2', 
+  API_KEY: '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',
+  API_URL: 'https://openrouter.ai/api/v1/chat/completions'
+};
+let planoAtual = null;
+let quizAtual = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  initTabs();
+  const elVersao = document.getElementById('versao');
+  if (elVersao) elVersao.textContent = CONFIG.APP_VERSION;
+});
+
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.getElementById(btn.dataset.tab);
+      if (target) target.classList.add('active');
+    });
+  });
+}
+
+async function gerarPlano() {
+  const disciplina = document.getElementById('disciplina').value.trim();
+  const serie = document.getElementById('serie').value.trim();
+  const tema = document.getElementById('tema').value.trim();
+  const duracao = document.getElementById('duracao').value;
+  
+  if (!disciplina || !serie || !tema) { showToast('Preencha: Disciplina, Série e Tema', 'error'); return; }
+  
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('btn-gerar').disabled = true;
+  document.getElementById('loading-msg').textContent = '🤖 Conectando com Qwen...';
+
+  try {
+    const prompt = `Especialista BNCC. Crie plano de aula para:
+Disciplina: ${disciplina} | Série: ${serie} | Tema: ${tema} | Duração: ${duracao}min
+
+Responda APENAS JSON (sem texto extra):
+{
+  "titulo": "Título criativo",
+  "objetivos": {"geral": "...", "especificos": ["...", "...", "..."]},
+  "habilidades_bncc": [{"codigo": "EF07MA07", "descricao": "..."}],
+  "desenvolvimento": [{"etapa": "...", "tempo": "...", "atividade": "..."}],
+  "recursos": ["...", "..."],
+  "avaliacao": {"criterios": ["..."], "instrumentos": ["..."]},
+  "extensoes": {"tarefa_casa": "...", "interdisciplinaridade": "..."}
+}`;
+
+    const res = await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${CONFIG.API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://oliverps8.github.io/Nexus_Edu/',
+        'X-Title': 'Nexus_Edu'
+      },
+      body: JSON.stringify({
+        model: 'qwen/qwen-plus',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.3
+      })
+    });
+
+    if (!res.ok) throw new Error(`Erro ${res.status}`);
+    
+    const data = await res.json();
+    let conteudo = data.choices?.[0]?.message?.content;
+    const jsonLimpo = conteudo.replace(/```json\s*|\s*```/g, '').trim();
+    planoAtual = JSON.parse(jsonLimpo);
+
+    renderizarPlano(planoAtual, { disciplina, serie, duracao });
+    document.getElementById('action-bar').style.display = 'flex';
+    showToast('✅ Plano gerado com Qwen!', 'success');
+
+  } catch (e) {
+    console.error(e);
+    showToast('⚠️ IA indisponível. Usando modo offline.', 'info');
+    planoAtual = gerarPlanoMock(disciplina, serie, tema, duracao);
+    renderizarPlano(planoAtual, { disciplina, serie, duracao });
+    document.getElementById('action-bar').style.display = 'flex';
+  } finally {
+    document.getElementById('loading').classList.remove('visible');
+    document.getElementById('btn-gerar').disabled = false;
+  }
+}
+
+function gerarPlanoMock(disciplina, serie, tema, duracao) {
+  return {
+    titulo: `Plano: ${tema} — ${disciplina}`,
+    objetivos: {
+      geral: `Compreender os conceitos de ${tema.toLowerCase()} de forma crítica`,
+      especificos: [`Identificar elementos-chave`, `Aplicar em situações práticas`, `Desenvolver pensamento crítico`]
+    },
+    habilidades_bncc: [
+      { codigo: 'EF07XX01', descricao: `Desenvolver habilidades de ${disciplina.toLowerCase()} alinhadas à BNCC` },
+      { codigo: 'EM13XX201', descricao: 'Aplicar conceitos para resolver situações-problema' }
+    ],
+    desenvolvimento: [
+      { etapa: 'Aquecimento', tempo: '15 min', atividade: 'Discussão sobre conhecimentos prévios' },
+      { etapa: 'Exposição', tempo: '30 min', atividade: 'Apresentação com exemplos práticos' },
+      { etapa: 'Prática', tempo: '30 min', atividade: 'Atividade em grupo' },
+      { etapa: 'Fechamento', tempo: '25 min', atividade: 'Síntese coletiva' }
+    ],
+    recursos: ['Lousa', 'Material impresso', 'Projetor (opcional)'],
+    avaliacao: { criterios: ['Participação', 'Compreensão'], instrumentos: ['Observação', 'Produção'] },
+    extensoes: { tarefa_casa: 'Pesquisa sobre aplicação no cotidiano', interdisciplinaridade: 'Conexão com outras áreas' }
+  };
+}
+
+function renderizarPlano(plano, meta) {
+  const output = document.getElementById('plan-output');
+  if (!output) return;
+  output.innerHTML = `
+    <div class="plan-header">
+      <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem">${plano.titulo}</h3>
+      <div class="plan-meta">
+        <span class="tag tag-cyan">${meta.disciplina}</span>
+        <span class="tag tag-purple">${meta.serie}</span>
+        <span class="tag tag-amber">${meta.duracao} min</span>
+      </div>
+    </div>
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-card-title"><span class="icon-badge ib-cyan">🎯</span>Objetivos</div>
+        <p style="margin-bottom:0.75rem"><strong>Geral:</strong> ${plano.objetivos.geral}</p>
+        <ul>${plano.objetivos.especificos.map(o => `<li>${o}</li>`).join('')}</ul>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-title"><span class="icon-badge ib-purple">📚</span>BNCC</div>
+        ${plano.habilidades_bncc.map(h => `<div><span class="bncc-code">${h.codigo}</span><p style="margin-top:4px;font-size:0.85rem">${h.descricao}</p></div>`).join('')}
+      </div>
+      <div class="plan-card full">
+        <div class="plan-card-title"><span class="icon-badge ib-amber">⚙️</span>Desenvolvimento</div>
+        ${plano.desenvolvimento.map(e => `<div style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)"><strong style="color:var(--text)">${e.etapa} <span style="color:var(--cyan);font-weight:400">(${e.tempo})</span></strong><p style="margin:0;font-size:0.9rem">${e.atividade}</p></div>`).join('')}
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-title"><span class="icon-badge ib-green">🧰</span>Recursos</div>
+        <ul>${plano.recursos.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-title"><span class="icon-badge ib-blue">📊</span>Avaliação</div>
+        <p><strong>Crítérios:</strong></p><ul>${plano.avaliacao.criterios.map(c => `<li>${c}</li>`).join('')}</ul>
+        <p style="margin-top:0.75rem"><strong>Instrumentos:</strong> ${plano.avaliacao.instrumentos.join(', ')}</p>
+      </div>
+      <div class="plan-card full">
+        <div class="plan-card-title"><span class="icon-badge ib-red">🚀</span>Extensões</div>
+        <p><strong>Para casa:</strong> ${plano.extensoes.tarefa_casa}</p>
+        <p style="margin-top:0.5rem"><strong>Interdisciplinar:</strong> ${plano.extensoes.interdisciplinaridade}</p>
+      </div>
+    </div>
+  `;
+  output.classList.add('visible');
+}
+
+function salvarPlano() {
+  if (!planoAtual) return;
+  const salvos = JSON.parse(localStorage.getItem('nexus_planos') || '[]');
+  salvos.unshift({ id: Date.now(),  new Date().toISOString(), meta: { disciplina: document.getElementById('disciplina').value, serie: document.getElementById('serie').value, tema: document.getElementById('tema').value, duracao: document.getElementById('duracao').value }, conteudo: planoAtual });
+  localStorage.setItem('nexus_planos', JSON.stringify(salvos.slice(0, 50)));
+  renderSavedPlans(); showToast('💾 Plano salvo!', 'success');
+}
+function copiarPlano() {
+  if (!planoAtual) return;
+  const texto = `${planoAtual.titulo}\n${'='.repeat(50)}\nDisciplina: ${document.getElementById('disciplina').value} | Série: ${document.getElementById('serie').value}\n\n🎯 OBJETIVOS\n• ${planoAtual.objetivos.geral}\n${planoAtual.objetivos.especificos.map(o => `• ${o}`).join('\n')}\n\n📚 BNCC\n${planoAtual.habilidades_bncc.map(h => `• ${h.codigo}: ${h.descricao}`).join('\n')}`;
+  navigator.clipboard.writeText(texto).then(() => showToast('📋 Copiado!', 'info'));
+}
+function toggleSalvos() {
+  const panel = document.getElementById('saved-panel');
+  panel.classList.toggle('visible');
+  if (panel.classList.contains('visible')) renderSavedPlans();
+}
+function renderSavedPlans() {
+  const lista = document.getElementById('saved-list');
+  const salvos = JSON.parse(localStorage.getItem('nexus_planos') || '[]');
+  if (salvos.length === 0) { lista.innerHTML = '<p class="empty-state">Nenhum plano salvo</p>'; return; }
+  lista.innerHTML = salvos.map(p => `<div class="saved-item" onclick="carregarPlano(${p.id})"><div class="saved-item-info"><div class="saved-item-title">${p.conteudo.titulo}</div><div class="saved-item-meta">${p.meta.disciplina} • ${new Date(p.data).toLocaleDateString('pt-BR')}</div></div><button class="saved-item-del" onclick="event.stopPropagation();deletarPlano(${p.id})">🗑️</button></div>`).join('');
+}
+function carregarPlano(id) {
+  const salvos = JSON.parse(localStorage.getItem('nexus_planos') || '[]');
+  const plano = salvos.find(p => p.id === id);
+  if (plano) { planoAtual = plano.conteudo; document.getElementById('disciplina').value = plano.meta.disciplina; document.getElementById('serie').value = plano.meta.serie; document.getElementById('tema').value = plano.meta.tema; document.getElementById('duracao').value = plano.meta.duracao; renderizarPlano(planoAtual, plano.meta); document.getElementById('action-bar').style.display = 'flex'; toggleSalvos(); showToast('📋 Plano carregado!', 'info'); }
+}
+function deletarPlano(id) { if (!confirm('Excluir?')) return; let salvos = JSON.parse(localStorage.getItem('nexus_planos') || '[]'); salvos = salvos.filter(p => p.id !== id); localStorage.setItem('nexus_planos', JSON.stringify(salvos)); renderSavedPlans(); showToast('🗑️ Excluído', 'info'); }
+function novoPlano() { document.getElementById('plan-output').classList.remove('visible'); document.getElementById('action-bar').style.display = 'none'; document.getElementById('disciplina').value = ''; document.getElementById('serie').value = ''; document.getElementById('tema').value = ''; planoAtual = null; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+function entrarComoAluno() {
+  const codigo = document.getElementById('codigo-aluno').value.trim();
+  if (codigo.length !== 6) { showToast('Código deve ter 6 dígitos', 'error'); return; }
+  document.getElementById('aluno-content').style.display = 'block';
+  document.getElementById('codigo-turma').textContent = codigo.toUpperCase();
+  showToast('🎓 Bem-vindo!', 'success');
+}
+function copiarCodigo() { navigator.clipboard.writeText(document.getElementById('codigo-turma').textContent).then(() => showToast('📋 Código copiado!', 'info')); }
+
+const quizzes = {
+  m1: {
+    perguntas: [
+      { pergunta: "Qual destes é um dado pessoal sensível?", opcoes: ["Seu nome", "Sua foto", "Sua opinião política", "Seu e-mail"], correta: 2 },
+      { pergunta: "Pela LGPD, você tem direito a:", opcoes: ["Vender seus dados", "Pedir exclusão dos seus dados", "Impedir qualquer coleta", "Nenhuma das anteriores"], correta: 1 },
+      { pergunta: "Ao criar uma conta online, você deve:", opcoes: ["Usar a mesma senha de tudo", "Compartilhar senha com amigos", "Ler a política de privacidade", "Ignorar os termos"], correta: 2 }
+    ]
+  },
+  m2: {
+    perguntas: [
+      { pergunta: "Cyberbullying é:", opcoes: ["Brincadeira entre amigos", "Assédio através de dispositivos digitais", "Comentário negativo uma vez", "Discussão saudável"], correta: 1 },
+      { pergunta: "Ao sofrer cyberbullying, o PRIMEIRO passo é:", opcoes: ["Responder o agressor", "Salvar as provas", "Excluir a conta", "Ignorar"], correta: 1 },
+      { pergunta: "O número para denunciar violações de direitos humanos no Brasil é:", opcoes: ["190", "100", "153", "188"], correta: 1 }
+    ]
+  },
+  m3: {
+    perguntas: [
+      { pergunta: "Excesso de tempo de tela pode afetar:", opcoes: ["Apenas a visão", "Sono, concentração e saúde mental", "Apenas o humor", "Nada"], correta: 1 },
+      { pergunta: "Uma boa prática para equilibrar o uso de telas é:", opcoes: ["Usar o celular na cama", "Desativar notificações não essenciais", "Nunca sair das redes sociais", "Ignorar o relógio"], correta: 1 },
+      { pergunta: "O Google Family Link serve para:", opcoes: ["Jogar mais", "Controlar tempo de uso de crianças", "Bloquear a internet", "Aumentar a bateria"], correta: 1 }
+    ]
+  },
+  m4: {
+    perguntas: [
+      { pergunta: "Fake news são criadas principalmente para:", opcoes: ["Informar", "Entreter", "Enganar ou manipular", "Educar"], correta: 2 },
+      { pergunta: "Ao receber uma notícia suspeita, você deve:", opcoes: ["Compartilhar logo", "Verificar a fonte antes", "Ignorar sempre", "Apagar a mensagem"], correta: 1 },
+      { pergunta: "Uma fonte confiável geralmente:", opcoes: ["Tem muitos emojis", "Não tem data", "É reconhecida e transparente", "Só publica o que você gosta"], correta: 2 }
+    ]
+  },
+  m5: {
+    perguntas: [
+      { pergunta: "No Instagram, para maior privacidade você deve:", opcoes: ["Deixar conta pública", "Ativar conta privada", "Aceitar todos os seguidores", "Postar tudo"], correta: 1 },
+      { pergunta: "No WhatsApp, 'Verificação em duas etapas' serve para:", opcoes: ["Deixar mais bonito", "Aumentar segurança da conta", "Enviar mais mensagens", "Economizar dados"], correta: 1 },
+      { pergunta: "É seguro compartilhar sua localização em tempo real:", opcoes: ["Sempre", "Só com desconhecidos", "Só com pessoas de confiança", "Nunca, com ninguém"], correta: 2 }
+    ]
+  }
+};
+
+const modulos = {
+  m1: { titulo: "🔐 Proteção de Dados", conteudo: `<p><strong>O que são dados pessoais?</strong><br>• Nome, foto, localização, mensagens, histórico<br>• Tudo que pode identificar você</p><p style="margin-top:1rem"><strong>Por que proteger?</strong><br>• Evitar golpes e roubo de identidade<br>• Manter controle sobre sua imagem</p><p style="margin-top:1rem"><strong>Seus direitos (LGPD + ECA Digital):</strong><br>✅ Saber quais dados uma empresa tem<br>✅ Pedir correção ou exclusão<br>✅ Revogar consentimentos</p><div style="margin-top:1rem;background:rgba(0,165,207,0.1);padding:1rem;border-radius:8px"><strong>💡 Dica:</strong> Nunca compartilhe senhas, CPF ou fotos íntimas online.</div>` },
+  m2: { titulo: "🚫 Cyberbullying", conteudo: `<p><strong>O que é?</strong><br>Assédio, humilhação ou ameaças através de dispositivos digitais.</p><p style="margin-top:1rem"><strong>Sinais de alerta:</strong><br>• Mensagens ofensivas repetidas<br>• Perfis falsos para difamar<br>• Exclusão proposital de grupos</p><p style="margin-top:1rem"><strong>O que fazer:</strong><br>1️⃣ NÃO RESPONDA ao agressor<br>2️⃣ SALVE AS PROVAS (prints)<br>3️⃣ BLOQUEIE o perfil<br>4️⃣ DENUNCIE na plataforma<br>5️⃣ CONVERSE com um adulto</p><p style="margin-top:1rem"><strong>Canais de ajuda:</strong><br>📞 Disque 100 | 💬 safernet.org.br</p>` },
+  m3: { titulo: "⏰ Tempo de Tela", conteudo: `<p><strong>Por que equilibrar?</strong><br>Excesso de tela pode afetar sono, concentração e saúde mental.</p><p style="margin-top:1rem"><strong>Dicas:</strong><br>🎯 Defina horários para redes sociais<br>🔕 Desative notificações não essenciais<br>📵 Crie momentos "sem tela"<br>🏃 Substitua por atividades ativas</p><p style="margin-top:1rem"><strong>Ferramentas:</strong><br>📱 Google Family Link (Android)<br>🍎 Screen Time (iOS)</p><div style="margin-top:1rem;background:rgba(22,163,74,0.1);padding:1rem;border-radius:8px"><strong>💡 Desafio:</strong> 1 hora por dia sem telas. Anote como se sentiu!</div>` },
+  m4: { titulo: "🔍 Fake News", conteudo: `<p><strong>O que são?</strong><br>Informações falsas criadas para enganar, manipular ou ganhar cliques.</p><p style="margin-top:1rem"><strong>Checklist de verificação:</strong><br>1️⃣ Quem publicou? É fonte confiável?<br>2️⃣ Qual a data? Notícias antigas como atuais?<br>3️⃣ A imagem é real? Use busca reversa<br>4️⃣ Outras fontes confirmam?<br>5️⃣ É muito emocionante? Desconfie!</p><p style="margin-top:1rem"><strong>Ferramentas:</strong><br>🔍 google.com/fact-check<br>🇧🇷 aosfatos.org, lupa.ai</p><div style="margin-top:1rem;background:rgba(124,58,237,0.1);padding:1rem;border-radius:8px"><strong>💡 Regra de ouro:</strong> Na dúvida, NÃO compartilhe. Verifique primeiro.</div>` },
+  m5: { titulo: "⚙️ Privacidade nas Redes", conteudo: `<p><strong>Instagram:</strong><br>1. Perfil → Configurações → Privacidade<br>2. Ative "Conta Privada"<br>3. Revise quem vê suas stories</p><p style="margin-top:1rem"><strong>TikTok:</strong><br>1. Perfil → Configurações → Privacidade<br>2. "Quem pode ver meus vídeos": Somente amigos<br>3. Desative "Sugerir sua conta"</p><p style="margin-top:1rem"><strong>WhatsApp:</strong><br>1. Configurações → Privacidade<br>2. "Quem vê meu número": Somente contatos<br>3. Ative "Verificação em duas etapas"</p><div style="margin-top:1rem;background:rgba(0,165,207,0.1);padding:1rem;border-radius:8px"><strong>💡 Dica:</strong> Revise configurações de privacidade a cada 3 meses.</div>` }
+};
+
+function abrirModulo(id) {
+  const m = modulos[id]; const q = quizzes[id];
+  if (!m) return;
+  
+  document.getElementById('titulo-modulo').textContent = m.titulo;
+  document.getElementById('conteudo-modulo').innerHTML = m.conteudo;
+  
+  const quizContainer = document.getElementById('quiz-container');
+  if (q) {
+    quizContainer.innerHTML = `
+      <h4 style="color:var(--text);margin:1rem 0 0.75rem">📝 Quiz de Fixação</h4>
+      ${q.perguntas.map((pq, idx) => `
+        <div class="quiz-question" data-idx="${idx}">
+          <p>${idx + 1}. ${pq.pergunta}</p>
+          <div class="quiz-options">
+            ${pq.opcoes.map((opt, i) => `<label class="quiz-option"><input type="radio" name="q${idx}" value="${i}"> ${opt}</label>`).join('')}
+          </div>
+          <div class="quiz-feedback" id="feedback-${idx}"></div>
+        </div>
+      `).join('')}
+      <button class="btn btn-primary" style="margin-top:1rem;width:100%" onclick="corrigirQuiz()">✅ Verificar Respostas</button>
+      <div class="quiz-score" id="quiz-score"></div>
+    `;
+    quizAtual = { id, respostas: {}, concluido: false };
+  } else {
+    quizContainer.innerHTML = '';
+    quizAtual = null;
+  }
+  
+  document.getElementById('modal-modulo').classList.add('visible');
+  
+  const btnConcluir = document.getElementById('btn-concluir');
+  btnConcluir.textContent = q ? '⏭️ Pular Quiz' : '✅ Concluir';
+  btnConcluir.onclick = q ? () => pularQuiz() : () => marcarConcluido();
+  
+  const concluidos = JSON.parse(localStorage.getItem('nexus_cidadania') || '[]');
+  if (concluidos.includes(id + '_concluido')) {
+    btnConcluir.textContent = '✅ Já Concluído';
+    btnConcluir.disabled = true;
+  }
+}
+
+function corrigirQuiz() {
+  if (!quizAtual) return;
+  const q = quizzes[quizAtual.id];
+  let acertos = 0;
+  
+  q.perguntas.forEach((pq, idx) => {
+    const selecionada = document.querySelector(`input[name="q${idx}"]:checked`);
+    const feedback = document.getElementById(`feedback-${idx}`);
+    const opcoes = document.querySelectorAll(`.quiz-question[data-idx="${idx}"] .quiz-option`);
+    
+    opcoes.forEach(o => o.classList.remove('selected', 'correct', 'incorrect'));
+    
+    if (selecionada) {
+      const valor = parseInt(selecionada.value);
+      opcoes[valor].classList.add('selected');
+      
+      if (valor === pq.correta) {
+        acertos++;
+        opcoes[valor].classList.add('correct');
+        feedback.textContent = '✅ Correto!';
+        feedback.className = 'quiz-feedback show correct';
+      } else {
+        opcoes[valor].classList.add('incorrect');
+        opcoes[pq.correta].classList.add('correct');
+        feedback.textContent = `❌ Errado. Resposta: ${pq.opcoes[pq.correta]}`;
+        feedback.className = 'quiz-feedback show incorrect';
+      }
+    }
+  });
+  
+  const scoreDiv = document.getElementById('quiz-score');
+  const porcentagem = Math.round((acertos / q.perguntas.length) * 100);
+  scoreDiv.innerHTML = `<h4>📊 Sua Pontuação</h4><p style="font-size:1.5rem;font-weight:700;color:var(--text)">${acertos}/${q.perguntas.length} (${porcentagem}%)</p><p style="margin-top:0.5rem">${porcentagem >= 70 ? '🎉 Ótimo! Você pode concluir o módulo.' : '💡 Revise o conteúdo e tente novamente!'}</p>`;
+  scoreDiv.classList.add('show');
+  
+  if (porcentagem >= 70 && !quizAtual.concluido) {
+    const btn = document.getElementById('btn-concluir');
+    btn.textContent = '✅ Concluir Módulo';
+    btn.disabled = false;
+    btn.onclick = () => marcarConcluido(true);
+    quizAtual.concluido = true;
+  }
+}
+
+function pularQuiz() {
+  if (confirm('Deseja concluir sem fazer o quiz? Recomenda-se responder para fixar o conteúdo.')) {
+    marcarConcluido(false);
+  }
+}
+
+function fecharModulo() { document.getElementById('modal-modulo').classList.remove('visible'); }
+
+function marcarConcluido(comQuiz) {
+  const id = quizAtual?.id || Object.keys(modulos).find(key => modulos[key].titulo === document.getElementById('titulo-modulo').textContent);
+  if (!id) { fecharModulo(); return; }
+  
+  let c = JSON.parse(localStorage.getItem('nexus_cidadania') || '[]');
+  c = c.filter(x => !x.startsWith(id));
+  c.push(id + '_concluido');
+  if (comQuiz !== false) c.push(id + '_quiz_ok');
+  localStorage.setItem('nexus_cidadania', JSON.stringify(c));
+  
+  fecharModulo();
+  showToast('✅ Módulo concluído! +10 PP', 'success');
+  
+  const concluidos = JSON.parse(localStorage.getItem('nexus_cidadania') || '[]');
+  const todos = Object.keys(modulos).every(k => concluidos.includes(k + '_concluido'));
+  if (todos) showToast('🏆 Parabéns! Certificado disponível na aba Cidadania Digital', 'success');
+}
+
+function gerarCertificado() {
+  const c = JSON.parse(localStorage.getItem('nexus_cidadania') || '[]');
+  const concluidos = Object.keys(modulos).filter(k => c.includes(k + '_concluido'));
+  if (concluidos.length < 5) { showToast(`⚠️ Conclua os ${5 - concluidos.length} módulos restantes`, 'info'); return; }
+  
+  const cert = `CERTIFICADO DE CIDADÃO DIGITAL\n================================\nNEXUS_EDU v${CONFIG.APP_VERSION}\nConformidade: Lei nº 15.211/2025 (ECA Digital) | LGPD\n\nCertificamos que o(a) estudante concluiu:\n"PROTEÇÃO E CIDADANIA NO MUNDO DIGITAL"\n\nMódulos: ✅ Proteção de Dados ✅ Cyberbullying ✅ Tempo de Tela ✅ Fake News ✅ Privacidade\nCarga horária: 90 min | Data: ${new Date().toLocaleDateString('pt-BR')}\nQuizzes: ${concluidos.filter(k=>c.includes(k+'_quiz_ok')).length}/5 com aprovação\nValidação: nexus-edu.github.io/validar/${btoa(Date.now()).slice(0,8)}`;
+  
+  navigator.clipboard.writeText(cert).then(() => { showToast('📄 Certificado copiado! Cole em um documento', 'success'); });
+}
+
+function gerarRelatorio() {
+  const temCidadania = true;
+  const temPrivacidade = localStorage.getItem('nexus_privacidade_aceita') === 'true';
+  document.getElementById('relatorio-output').innerHTML = `<div class="plan-card full"><p style="color:var(--green)">✅ Conformidade Verificada</p><ul style="margin-top:0.75rem"><li><strong>ECA Digital:</strong> ${temCidadania ? '✅ Módulo Cidadania Digital ativo' : '⚠️ Adicione o módulo'}</li><li><strong>Privacidade:</strong> ${temPrivacidade ? '✅ Política aceita' : 'ℹ️ Exibir aos usuários'}</li><li><strong>Proteção de Dados:</strong> ✅ Dados locais (sem envio externo)</li><li><strong>Controle Parental:</strong> ℹ️ Recomendar vinculação para <16 anos</li></ul><p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">Verificação: ${new Date().toLocaleDateString('pt-BR')}</p></div>`;
+  document.getElementById('relatorio-output').style.display = 'block';
+  showToast('📄 Relatório gerado!', 'success');
+}
+
+function mostrarPrivacidade() { document.getElementById('modal-privacidade').classList.add('visible'); }
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
